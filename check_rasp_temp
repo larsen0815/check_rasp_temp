@@ -1,5 +1,6 @@
 #!/bin/bash
 # Adapted from check_nagios_latency
+# https://github.com/larsen0815/check_rasp_temp
 
 VCGENCMD="/opt/vc/bin/vcgencmd"
 
