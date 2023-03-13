@@ -12,10 +12,11 @@ usage() {
 	fi
 
 	echo ""
-	echo "Usage: check_rasp_temp [-h?] -w warning -c critical"
+	echo "Usage: check_rasp_temp [-hl?] -w warning -c critical"
 	echo ""
 	echo "   -w         warning threshold"
 	echo "   -c         critical threshold"
+	echo "   -l         check for low temperatures"
 	echo "   -h, -?     this help message"
 	echo ""
 
@@ -46,11 +47,12 @@ check_prog bc
 
 
 # process command line options
-while getopts "h?c:w:" opt; do
+while getopts "hl?c:w:" opt; do
 	case $opt in
 		c )      CRITICAL=$OPTARG;  ;;
 		h | \? ) usage ; exit 3;    ;;
 		w )      WARNING=$OPTARG;   ;;
+		l )      LOW=true;          ;;
 	esac
 done
 shift $(($OPTIND - 1))
@@ -79,16 +81,30 @@ fi
 TEMP=`$VCGENCMD measure_temp | awk -F"=" '{print $2}' | awk -F"'" '{print $1}'`
 PERF="temp=${TEMP};${WARNING};${CRITICAL};;"
 
-COMPARISON=`echo "if($TEMP>=$CRITICAL) 1 else 0;" | bc`
-if [ $COMPARISON -eq 1 ] ; then
-	echo "TEMPERATURE CRITICAL: $TEMP | $PERF"
-	exit 2
-fi
-
-COMPARISON=`echo "if($TEMP>=$WARNING) 1 else 0;" | bc`
-if [ $COMPARISON -eq 1 ] ; then
-	echo "TEMPERATURE WARNING: $TEMP | $PERF"
-	exit 1
+if [ "$LOW" == true ] ; then
+	COMPARISON=`echo "if($TEMP<=$CRITICAL) 1 else 0;" | bc`
+	if [ $COMPARISON -eq 1 ] ; then
+		echo "TEMPERATURE CRITICAL: $TEMP | $PERF"
+		exit 2
+	fi
+	
+	COMPARISON=`echo "if($TEMP<=$WARNING) 1 else 0;" | bc`
+	if [ $COMPARISON -eq 1 ] ; then
+		echo "TEMPERATURE WARNING: $TEMP | $PERF"
+		exit 1
+	fi
+else
+	COMPARISON=`echo "if($TEMP>=$CRITICAL) 1 else 0;" | bc`
+	if [ $COMPARISON -eq 1 ] ; then
+		echo "TEMPERATURE CRITICAL: $TEMP | $PERF"
+		exit 2
+	fi
+	
+	COMPARISON=`echo "if($TEMP>=$WARNING) 1 else 0;" | bc`
+	if [ $COMPARISON -eq 1 ] ; then
+		echo "TEMPERATURE WARNING: $TEMP | $PERF"
+		exit 1
+	fi
 fi
 
 echo "TEMPERATURE OK: $TEMP | $PERF"
