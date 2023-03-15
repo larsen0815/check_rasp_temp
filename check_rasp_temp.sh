@@ -2,7 +2,6 @@
 # Adapted from check_nagios_latency
 # https://github.com/larsen0815/check_rasp_temp
 
-VCGENCMD="/opt/vc/bin/vcgencmd"
 
 # Prints usage information
 usage() {
@@ -41,7 +40,7 @@ check_prog() {
 
 
 # Main
-# check progs
+check_prog vcgencmd
 check_prog awk
 check_prog bc
 
@@ -78,7 +77,7 @@ fi
 
 
 # Perform the checks
-TEMP=`$VCGENCMD measure_temp | awk -F"=" '{print $2}' | awk -F"'" '{print $1}'`
+TEMP=`vcgencmd measure_temp | awk -F"=" '{print $2}' | awk -F"'" '{print $1}'`
 PERF="temp=${TEMP};${WARNING};${CRITICAL};;"
 
 if [ "$LOW" == true ] ; then
