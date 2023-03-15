@@ -27,7 +27,7 @@ usage() {
 check_prog() {
 
 	if [ -z "$PROG" ] ; then
-		PROG=`which $1`
+		PROG=$(which $1)
 	fi
 
 	if [ -z "$PROG" ] ; then
@@ -77,29 +77,29 @@ fi
 
 
 # Perform the checks
-TEMP=`vcgencmd measure_temp | awk -F"=" '{print $2}' | awk -F"'" '{print $1}'`
+TEMP=$(vcgencmd measure_temp | awk -F"=" '{print $2}' | awk -F"'" '{print $1}')
 PERF="temp=${TEMP};${WARNING};${CRITICAL};;"
 
 if [ "$LOW" == true ] ; then
-	COMPARISON=`echo "if($TEMP<=$CRITICAL) 1 else 0;" | bc`
+	COMPARISON=$(echo "if($TEMP<=$CRITICAL) 1 else 0;" | bc)
 	if [ $COMPARISON -eq 1 ] ; then
 		echo "TEMPERATURE CRITICAL: $TEMP | $PERF"
 		exit 2
 	fi
 	
-	COMPARISON=`echo "if($TEMP<=$WARNING) 1 else 0;" | bc`
+	COMPARISON=$(echo "if($TEMP<=$WARNING) 1 else 0;" | bc)
 	if [ $COMPARISON -eq 1 ] ; then
 		echo "TEMPERATURE WARNING: $TEMP | $PERF"
 		exit 1
 	fi
 else
-	COMPARISON=`echo "if($TEMP>=$CRITICAL) 1 else 0;" | bc`
+	COMPARISON=$(echo "if($TEMP>=$CRITICAL) 1 else 0;" | bc)
 	if [ $COMPARISON -eq 1 ] ; then
 		echo "TEMPERATURE CRITICAL: $TEMP | $PERF"
 		exit 2
 	fi
 	
-	COMPARISON=`echo "if($TEMP>=$WARNING) 1 else 0;" | bc`
+	COMPARISON=$(echo "if($TEMP>=$WARNING) 1 else 0;" | bc)
 	if [ $COMPARISON -eq 1 ] ; then
 		echo "TEMPERATURE WARNING: $TEMP | $PERF"
 		exit 1
