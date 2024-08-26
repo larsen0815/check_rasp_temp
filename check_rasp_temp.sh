@@ -77,7 +77,7 @@ fi
 
 
 # Perform the checks
-TEMP=$(vcgencmd measure_temp | awk -F"=" '{print $2}' | awk -F"'" '{print $1}')
+TEMP=$(sudo vcgencmd measure_temp | awk -F"=" '{print $2}' | awk -F"'" '{print $1}')
 PERF="temp=${TEMP};${WARNING};${CRITICAL};;"
 
 if [ "$LOW" == true ] ; then
